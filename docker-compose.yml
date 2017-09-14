@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  redis:
+    restart: always
+    image: redis:latest
+    container_name: sspanel_redis
+    command:
+    - --loglevel warning
+    volumes:
+      - ./redis_data:/var/lib/redis:Z
+
+  mysql:
+      image: mysql
+      container_name: sspanel_mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=sspanel
+        - MYSQL_DATABASE=sspanel
+      volumes:
+        - ./mysql_data:/var/lib/mysql:Z
+
+  ss-panel:
+      image: orvice/ss-panel:master
+      ports:
+        - 8080:80
+      container_name: ss-panel
+      depends_on:
+        - mysql
+        - redis
+      environment:
+        - MIGRATION=true
+        - ADMIN_EMAIL=
+        - ADMIN_PASS=
+
+        - APP_LANG=en
+
+        - AUTH_SALT=
+        - AUTH_PASSWORD_ENCRYPTION_TYPE=bcrypt
+
+        - DB_HOST=mysql
+        - DB_DATABASE=sspanel
+        - DB_USERNAME=root
+        - DB_PASSWORD=sspanel
+
+        - REDIS_HOST=redis
